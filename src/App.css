@@ -36,3 +36,14 @@
     transform: rotate(360deg);
   }
 }
+
+.logo {
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo:focus,
+.logo:active,
+.logo:hover {
+  color: inherit;
+}
