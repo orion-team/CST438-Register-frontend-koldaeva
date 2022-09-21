@@ -23,30 +23,23 @@ export class AddStudent extends Component {
     });
   };
 
-  // Add Student
-  // Since we're not using any type system
-  // It is a good practice to set defaults
-  // That allow the consumer to know expected shape of arguments
-  addStudent = (
-    student = {
-      email: "",
-      name: "",
-      //   statusCode: 0,
-    }
-  ) => {
-    alert("HERE");
-    postResource(`student`, student, "student").then((res) => {
-      if (res.ok) {
-        toast.success("Student successfully added", {
-          position: toast.POSITION.BOTTOM_LEFT,
-        });
-      } else {
-        toast.error("Error when adding student", {
-          position: toast.POSITION.BOTTOM_LEFT,
-        });
-        console.error("Post http status =" + res.status);
-      }
-    });
+  addStudent = (student) => {
+    postResource(`student`, student, "student")
+      .then((res) => {
+        if (res.ok) {
+          toast.success("Student successfully added", {
+            position: toast.POSITION.BOTTOM_LEFT,
+          });
+        } else {
+          toast.error("Error when adding student", {
+            position: toast.POSITION.BOTTOM_LEFT,
+          });
+          console.error("Post http status =" + res.status);
+        }
+      })
+      .finally(() => {
+        this.setState({ open: false });
+      });
   };
 
   render() {
