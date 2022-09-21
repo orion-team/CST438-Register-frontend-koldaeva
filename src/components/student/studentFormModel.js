@@ -13,6 +13,18 @@ export const defaultStudentForm = {
       errorMessage: "",
       value: "",
     },
+    statusCode: {
+      isValid: true,
+      isTouched: false,
+      errorMessage: "",
+      value: "0",
+    },
+    status: {
+      isValid: true,
+      isTouched: false,
+      errorMessage: "",
+      value: "",
+    },
   },
 };
 
@@ -21,24 +33,40 @@ export const errors = {
     required: "Student name is required",
     pattern: "No special characters are allowed",
     generic: "Please provide a valid student name",
+    tooShort: "Student name must be at least 3 characters long",
   },
   studentEmail: {
     required: "Student email is required",
     type: "Please provide a valid student email",
     generic: "Please provide a valid student email",
   },
+  statusCode: {
+    pattern: "Status code should be 0 for OK or 1 for hold",
+  },
+  status: {
+    tooLong: "Status note should be up to 50 characters",
+  },
 };
 
 export const patterns = {
   stundentName: "^[a-zA-Z]+(?:\\s+[a-zA-Z]+)*$",
+  statusCode: "[01]",
 };
 
-export const getErrorMessage = (validityState, fieldName, value) => {
-  const { valid, patternMismatch, valueMissing, typeMismatch } = validityState;
+export const getErrorMessage = (validityState, fieldName) => {
+  const {
+    valid,
+    patternMismatch,
+    valueMissing,
+    typeMismatch,
+    tooLong,
+    tooShort,
+  } = validityState;
 
-  if (valid && value !== "") return "";
+  console.log(validityState);
+  if (valid) return "";
 
-  if (value === "" || valueMissing) {
+  if (valueMissing) {
     return errors[fieldName].required;
   }
 
@@ -48,6 +76,14 @@ export const getErrorMessage = (validityState, fieldName, value) => {
 
   if (typeMismatch) {
     return errors[fieldName].type;
+  }
+
+  if (tooLong) {
+    return errors[fieldName].tooLong;
+  }
+
+  if (tooShort) {
+    return errors[fieldName].tooShort;
   }
 
   return errors[fieldName].generic;
@@ -81,12 +117,12 @@ export const nextFormState = (currentFormState, action) => {
   switch (type) {
     case "CHANGE":
       const { value, validity: validityState } = inputElement;
-      console.log(value, validityState);
+
       const fields = {
         ...nextDraftState.fields,
         [fieldName]: {
           ...nextDraftState.fields[fieldName],
-          errorMessage: getErrorMessage(validityState, fieldName, value),
+          errorMessage: getErrorMessage(validityState, fieldName),
           isValid: value !== "" && validityState.valid,
           value,
         },
