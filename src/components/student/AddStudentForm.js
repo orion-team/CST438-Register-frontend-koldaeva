@@ -41,8 +41,6 @@ export class AddStudentForm extends Component {
     });
   };
 
-  handleAdd = () => {};
-
   render() {
     const { isDialogOpen, handleClose } = this.props;
     const {
@@ -110,7 +108,14 @@ export class AddStudentForm extends Component {
               type="submit"
               id="Add"
               color="primary"
-              onClick={this.handleAdd}
+              onClick={() => {
+                if (isValid) {
+                  this.props.handleSubmit({
+                    studentName: studentName.value,
+                    studentEmail: studentEmail.value,
+                  });
+                }
+              }}
             >
               Add
             </Button>

@@ -1,6 +1,9 @@
 import React, { Component } from "react";
+
+import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@mui/material";
 import { AddStudentForm } from "./AddStudentForm";
+import { postResource } from "../../api/api";
 
 export class AddStudent extends Component {
   constructor(props) {
@@ -20,6 +23,32 @@ export class AddStudent extends Component {
     });
   };
 
+  // Add Student
+  // Since we're not using any type system
+  // It is a good practice to set defaults
+  // That allow the consumer to know expected shape of arguments
+  addStudent = (
+    student = {
+      email: "",
+      name: "",
+      //   statusCode: 0,
+    }
+  ) => {
+    alert("HERE");
+    postResource(`student`, student, "student").then((res) => {
+      if (res.ok) {
+        toast.success("Student successfully added", {
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
+      } else {
+        toast.error("Error when adding student", {
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
+        console.error("Post http status =" + res.status);
+      }
+    });
+  };
+
   render() {
     return (
       <section className="detail">
@@ -36,8 +65,10 @@ export class AddStudent extends Component {
           <AddStudentForm
             isDialogOpen={this.state.open}
             handleClose={this.handleClose}
+            handleSubmit={this.addStudent}
           />
         </div>
+        <ToastContainer autoClose={1500} />
       </section>
     );
   }
