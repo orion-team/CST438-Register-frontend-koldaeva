@@ -3,12 +3,17 @@ import React, { Component } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@mui/material";
 import { AddStudentForm } from "./AddStudentForm";
-import { postResource } from "../../api/api";
+import { getResource, postResource } from "../../api/api";
+import { StudenList } from "./StudentList";
 
 export class AddStudent extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: false };
+    this.state = { open: false, students: [] };
+  }
+
+  componentDidMount() {
+    this.fetchStudents();
   }
 
   handleClose = () => {
@@ -30,6 +35,7 @@ export class AddStudent extends Component {
           toast.success("Student successfully added", {
             position: toast.POSITION.BOTTOM_LEFT,
           });
+          this.fetchStudents();
         } else {
           toast.error("Error when adding student", {
             position: toast.POSITION.BOTTOM_LEFT,
@@ -38,8 +44,27 @@ export class AddStudent extends Component {
         }
       })
       .finally(() => {
-        this.setState({ open: false });
+        this.setState({ ...this.state, open: false });
       });
+  };
+
+  fetchStudents = () => {
+    getResource(`student`, "student").then((res) => {
+      if (Array.isArray(res)) {
+        this.setState({
+          ...this.state,
+          students: res.map((student) => ({
+            ...student,
+            id: student.student_id,
+          })),
+        });
+      } else {
+        toast.error("Error when fetching students", {
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
+        console.error("Get http status =" + res.status);
+      }
+    });
   };
 
   render() {
@@ -61,6 +86,7 @@ export class AddStudent extends Component {
             handleSubmit={this.addStudent}
           />
         </div>
+        <StudenList students={this.state.students} />
         <ToastContainer autoClose={1500} />
       </section>
     );
