@@ -29,7 +29,7 @@ class SchedList extends Component {
   componentDidMount() {
     this.fetchCourses();
   }
-  // TODO create generic function to do GET, DELETE, PUT
+
   fetchCourses = () => {
     getResource(
       `schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`,
