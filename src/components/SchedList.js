@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Cookies from "js-cookie";
-import { SERVER_URL } from "../constants.js";
 import Grid from "@mui/material/Grid";
 import { DataGrid } from "@mui/x-data-grid";
 import Button from "@mui/material/Button";
@@ -11,6 +9,7 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import AddCourse from "./AddCourse";
+import { deleteResource, getResource, postResource } from "../api/api.js";
 
 // NOTE:  for OAuth security, http request must have
 //   credentials: 'include'
@@ -32,15 +31,9 @@ class SchedList extends Component {
   }
   // TODO create generic function to do GET, DELETE, PUT
   fetchCourses = () => {
-    console.log("SchedList.fetchCourses");
-    const token = Cookies.get("XSRF-TOKEN");
-
-    fetch(
-      `${SERVER_URL}/schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`,
-      {
-        method: "GET",
-        headers: { "X-XSRF-TOKEN": token },
-      }
+    getResource(
+      `schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`,
+      "course"
     )
       .then((response) => {
         console.log("FETCH RESP:" + response);
@@ -57,74 +50,43 @@ class SchedList extends Component {
             position: toast.POSITION.BOTTOM_LEFT,
           });
         }
-      })
-      .catch((err) => {
-        toast.error("Fetch failed.", {
-          position: toast.POSITION.BOTTOM_LEFT,
-        });
-        console.error(err);
       });
   };
 
   // Drop Course
   onDelClick = (id) => {
     if (window.confirm("Are you sure you want to drop the course?")) {
-      const token = Cookies.get("XSRF-TOKEN");
-
-      fetch(`${SERVER_URL}/schedule/${id}`, {
-        method: "DELETE",
-        headers: { "X-XSRF-TOKEN": token },
-      })
-        .then((res) => {
-          if (res.ok) {
-            toast.success("Course successfully dropped", {
-              position: toast.POSITION.BOTTOM_LEFT,
-            });
-            this.fetchCourses();
-          } else {
-            toast.error("Course drop failed", {
-              position: toast.POSITION.BOTTOM_LEFT,
-            });
-            console.error("Delete http status =" + res.status);
-          }
-        })
-        .catch((err) => {
+      deleteResource(`schedule/${id}`, "course").then((res) => {
+        if (res.ok) {
+          toast.success("Course successfully dropped", {
+            position: toast.POSITION.BOTTOM_LEFT,
+          });
+          this.fetchCourses();
+        } else {
           toast.error("Course drop failed", {
             position: toast.POSITION.BOTTOM_LEFT,
           });
-          console.error(err);
-        });
+          console.error("Delete http status =" + res.status);
+        }
+      });
     }
   };
 
   // Add course
   addCourse = (course) => {
-    const token = Cookies.get("XSRF-TOKEN");
-
-    fetch(`${SERVER_URL}/schedule`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-XSRF-TOKEN": token },
-      body: JSON.stringify(course),
-    })
-      .then((res) => {
-        if (res.ok) {
-          toast.success("Course successfully added", {
-            position: toast.POSITION.BOTTOM_LEFT,
-          });
-          this.fetchCourses();
-        } else {
-          toast.error("Error when adding", {
-            position: toast.POSITION.BOTTOM_LEFT,
-          });
-          console.error("Post http status =" + res.status);
-        }
-      })
-      .catch((err) => {
-        toast.error("Error when adding", {
+    postResource("schedule", course, "course").then((res) => {
+      if (res.ok) {
+        toast.success("Course successfully added", {
           position: toast.POSITION.BOTTOM_LEFT,
         });
-        console.error(err);
-      });
+        this.fetchCourses();
+      } else {
+        toast.error("Error when adding course", {
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
+        console.error("Post http status =" + res.status);
+      }
+    });
   };
 
   render() {
