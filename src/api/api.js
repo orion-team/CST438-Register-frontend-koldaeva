@@ -52,12 +52,17 @@ export const getResource = (resourceURL, label = "") => {
   return fetch(`${SERVER_URL}/${resourceURL}`, {
     method: "GET",
     headers: { "X-XSRF-TOKEN": token },
-  }).catch((error) => {
-    console.log(label);
-    // Generic error that will be the same for any get request
-    toast.error(`Error when fetching ${label}`, {
-      position: toast.POSITION.BOTTOM_LEFT,
+  })
+    .then((response) => {
+      console.log("FETCH RESP:" + response);
+      return response.json();
+    })
+    .catch((error) => {
+      console.log(label);
+      // Generic error that will be the same for any get request
+      toast.error(`Error when fetching ${label}`, {
+        position: toast.POSITION.BOTTOM_LEFT,
+      });
+      console.error(error);
     });
-    console.error(error);
-  });
 };

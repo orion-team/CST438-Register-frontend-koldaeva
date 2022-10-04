@@ -29,28 +29,23 @@ class SchedList extends Component {
   componentDidMount() {
     this.fetchCourses();
   }
-  // TODO create generic function to do GET, DELETE, PUT
+
   fetchCourses = () => {
     getResource(
       `schedule?year=${this.props.location.year}&semester=${this.props.location.semester}`,
       "course"
-    )
-      .then((response) => {
-        console.log("FETCH RESP:" + response);
-        return response.json();
-      })
-      .then((responseData) => {
-        // do a sanity check on response
-        if (Array.isArray(responseData.courses)) {
-          this.setState({
-            courses: responseData.courses,
-          });
-        } else {
-          toast.error("Fetch failed.", {
-            position: toast.POSITION.BOTTOM_LEFT,
-          });
-        }
-      });
+    ).then((responseData) => {
+      // do a sanity check on response
+      if (Array.isArray(responseData.courses)) {
+        this.setState({
+          courses: responseData.courses,
+        });
+      } else {
+        toast.error("Fetch failed.", {
+          position: toast.POSITION.BOTTOM_LEFT,
+        });
+      }
+    });
   };
 
   // Drop Course

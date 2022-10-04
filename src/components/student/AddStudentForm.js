@@ -45,7 +45,7 @@ export class AddStudentForm extends Component {
     const { isDialogOpen, handleClose } = this.props;
     const {
       isValid,
-      fields: { studentName, studentEmail },
+      fields: { studentName, studentEmail, statusCode, status },
     } = this.state.formState;
 
     return (
@@ -54,7 +54,11 @@ export class AddStudentForm extends Component {
         open={isDialogOpen}
         onClose={handleClose}
       >
-        <form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
           <DialogTitle className="form__title">Add Student</DialogTitle>
           <DialogContent className="form__content">
             <TextField
@@ -69,6 +73,7 @@ export class AddStudentForm extends Component {
               onChange={this.makeHandleChange("studentName")}
               inputProps={{
                 pattern: patterns.stundentName,
+                minLength: 3,
               }}
               helperText={
                 studentName.isTouched && studentName.errorMessage
@@ -83,7 +88,6 @@ export class AddStudentForm extends Component {
               error={
                 studentEmail.isTouched && Boolean(studentEmail.errorMessage)
               }
-              autoFocus
               fullWidth
               label="Student Email"
               name="studentEmail"
@@ -97,6 +101,46 @@ export class AddStudentForm extends Component {
                   : ""
               }
               required
+            />
+
+            <TextField
+              margin="dense"
+              error={statusCode.isTouched && Boolean(statusCode.errorMessage)}
+              fullWidth
+              label="Status Code"
+              name="statusCode"
+              value={statusCode.value}
+              onBlur={this.makeHandleBlur("statusCode")}
+              onChange={this.makeHandleChange("statusCode")}
+              type="text"
+              helperText={
+                statusCode.isTouched && statusCode.errorMessage
+                  ? statusCode.errorMessage
+                  : "Set status code 1 to put a hold"
+              }
+              inputProps={{
+                pattern: patterns.statusCode,
+              }}
+            />
+
+            <TextField
+              margin="dense"
+              error={status.isTouched && Boolean(status.errorMessage)}
+              fullWidth
+              label="Status Note"
+              name="status"
+              value={status.value}
+              onBlur={this.makeHandleBlur("status")}
+              onChange={this.makeHandleChange("status")}
+              type="text"
+              helperText={
+                status.isTouched && status.errorMessage
+                  ? status.errorMessage
+                  : ""
+              }
+              inputProps={{
+                maxLength: 50,
+              }}
             />
           </DialogContent>
           <DialogActions>
@@ -113,6 +157,8 @@ export class AddStudentForm extends Component {
                   this.props.handleSubmit({
                     studentName: studentName.value,
                     studentEmail: studentEmail.value,
+                    statusCode: statusCode.value,
+                    status: status.value,
                   });
                 }
               }}

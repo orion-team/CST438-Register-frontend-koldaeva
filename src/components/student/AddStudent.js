@@ -3,12 +3,17 @@ import React, { Component } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import { Button } from "@mui/material";
 import { AddStudentForm } from "./AddStudentForm";
-import { postResource } from "../../api/api";
+import { getResource, postResource } from "../../api/api";
+import { StudenList } from "./StudentList";
 
 export class AddStudent extends Component {
   constructor(props) {
     super(props);
-    this.state = { open: false };
+    this.state = { open: false, students: [] };
+  }
+
+  componentDidMount() {
+    this.fetchStudents();
   }
 
   handleClose = () => {
@@ -23,28 +28,41 @@ export class AddStudent extends Component {
     });
   };
 
-  // Add Student
-  // Since we're not using any type system
-  // It is a good practice to set defaults
-  // That allow the consumer to know expected shape of arguments
-  addStudent = (
-    student = {
-      email: "",
-      name: "",
-      //   statusCode: 0,
-    }
-  ) => {
-    alert("HERE");
-    postResource(`student`, student, "student").then((res) => {
-      if (res.ok) {
-        toast.success("Student successfully added", {
-          position: toast.POSITION.BOTTOM_LEFT,
+  addStudent = (student) => {
+    postResource(`student`, student, "student")
+      .then((res) => {
+        if (res.ok) {
+          toast.success("Student successfully added", {
+            position: toast.POSITION.BOTTOM_LEFT,
+          });
+          this.fetchStudents();
+        } else {
+          toast.error("Error when adding student", {
+            position: toast.POSITION.BOTTOM_LEFT,
+          });
+          console.error("Post http status =" + res.status);
+        }
+      })
+      .finally(() => {
+        this.setState({ ...this.state, open: false });
+      });
+  };
+
+  fetchStudents = () => {
+    getResource(`student`, "student").then((res) => {
+      if (Array.isArray(res)) {
+        this.setState({
+          ...this.state,
+          students: res.map((student) => ({
+            ...student,
+            id: student.student_id,
+          })),
         });
       } else {
-        toast.error("Error when adding student", {
+        toast.error("Error when fetching students", {
           position: toast.POSITION.BOTTOM_LEFT,
         });
-        console.error("Post http status =" + res.status);
+        console.error("Get http status =" + res.status);
       }
     });
   };
@@ -68,6 +86,7 @@ export class AddStudent extends Component {
             handleSubmit={this.addStudent}
           />
         </div>
+        <StudenList students={this.state.students} />
         <ToastContainer autoClose={1500} />
       </section>
     );
